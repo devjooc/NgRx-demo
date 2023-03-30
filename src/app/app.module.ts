@@ -3,14 +3,31 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import {HttpClientModule} from "@angular/common/http";
+import {UserModule} from "./user/user.module";
+import {ProductData} from "./products/product-data";
+import {PageNotFoundComponent} from "./home/page-not-found.component";
+import {WelcomeComponent} from "./home/welcome.component";
+import {MenuComponent} from "./home/menu.component";
+import {ShellComponent} from "./home/shell.component";
+import {HttpClientInMemoryWebApiModule} from "angular-in-memory-web-api";
+import { StoreModule } from '@ngrx/store';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ShellComponent,
+    MenuComponent,
+    WelcomeComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    HttpClientModule,
+    HttpClientInMemoryWebApiModule.forRoot(ProductData),
+    UserModule,
+    AppRoutingModule,
+    StoreModule.forRoot({}, {})
   ],
   providers: [],
   bootstrap: [AppComponent]
