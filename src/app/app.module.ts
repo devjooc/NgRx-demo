@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {NgModule, isDevMode} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
 import {HttpClientModule} from "@angular/common/http";
 import {UserModule} from "./user/user.module";
 import {ProductData} from "./products/product-data";
@@ -11,7 +11,8 @@ import {WelcomeComponent} from "./home/welcome.component";
 import {MenuComponent} from "./home/menu.component";
 import {ShellComponent} from "./home/shell.component";
 import {HttpClientInMemoryWebApiModule} from "angular-in-memory-web-api";
-import { StoreModule } from '@ngrx/store';
+import {StoreModule} from '@ngrx/store';
+import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 
 @NgModule({
   declarations: [
@@ -27,9 +28,11 @@ import { StoreModule } from '@ngrx/store';
     HttpClientInMemoryWebApiModule.forRoot(ProductData),
     UserModule,
     AppRoutingModule,
-    StoreModule.forRoot({}, {})
+    StoreModule.forRoot({}, {}),
+    StoreDevtoolsModule.instrument({name: 'Demo App', maxAge: 25, logOnly: !isDevMode()})
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
