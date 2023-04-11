@@ -5,6 +5,8 @@ import {Subscription} from 'rxjs';
 import {Product} from '../product';
 import {ProductService} from '../product.service';
 import {Store} from "@ngrx/store";
+import {AppState} from "../state/product-state"; // import AppState from Products folder
+import {getShowProductCode} from "../state/product-reducer";
 
 @Component({
   selector: 'pm-product-list',
@@ -12,7 +14,7 @@ import {Store} from "@ngrx/store";
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit, OnDestroy {
-  pageTitle = 'Products';
+  pageTitle: string = 'Products';
   errorMessage!: string;
 
   displayCode!: boolean;
@@ -23,7 +25,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   selectedProduct!: Product | null;
   sub!: Subscription;
 
-  constructor(private productService: ProductService, private store: Store<any>) {
+  constructor(private productService: ProductService, private store: Store<AppState>) {
   }
 
   ngOnInit(): void {
@@ -36,14 +38,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
       error: err => this.errorMessage = err
     });
 
-    // subscribe to ngRx store (select slice 'products') to receive state changes
-    this.store.select('products').subscribe(
-      products => {
-        if (products) {
-          this.displayCode = products.showProductCode;
-        }
-      }
+    // subscribe to store using a selector
+    this.store.select(getShowProductCode).subscribe(
+      (showProductCode: boolean) => this.displayCode = showProductCode
     )
+
+    // subscribe to ngRx store (select slice 'products') to receive state changes (no selector here)
+    // this.store.select('products').subscribe(
+    //   products => this.displayCode = products.showProductCode
+    // );
   }
 
   ngOnDestroy(): void {
