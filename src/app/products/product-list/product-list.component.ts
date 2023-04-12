@@ -6,7 +6,9 @@ import {Product} from '../product';
 import {ProductService} from '../product.service';
 import {Store} from "@ngrx/store";
 import {AppState} from "../state/product-state"; // import AppState from Products folder
-import {getShowProductCode} from "../state/product-reducer";
+import {getCurrentProduct, getShowProductCode} from "../state/product-reducer";
+// use import as for actions
+import * as ProductActions from '../state/product-actions';
 
 @Component({
   selector: 'pm-product-list',
@@ -29,7 +31,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.sub = this.productService.selectedProductChanges$.subscribe(
+    // old standard implementation
+    // this.sub = this.productService.selectedProductChanges$.subscribe(
+    //   currentProduct => this.selectedProduct = currentProduct
+    // );
+    // TODO: unsubscribe
+    this.store.select(getCurrentProduct).subscribe(
       currentProduct => this.selectedProduct = currentProduct
     );
 
@@ -50,22 +57,26 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    // this.sub.unsubscribe();
   }
 
   checkChanged(): void {
-    // this.displayCode = !this.displayCode;
-    this.store.dispatch({
-      type: '[Product] Toggle Product Code'
-    })
+    this.store.dispatch(ProductActions.toggleProductCode());
+
+    // example of dispatching action without typed action
+    // this.store.dispatch({
+    //   type: '[Product] Toggle Product Code'
+    // });
   }
 
   newProduct(): void {
-    this.productService.changeSelectedProduct(this.productService.newProduct());
+    // this.productService.changeSelectedProduct(this.productService.newProduct());
+    this.store.dispatch(ProductActions.initializeCurrentProduct());
   }
 
   productSelected(product: Product): void {
-    this.productService.changeSelectedProduct(product);
+    // this.productService.changeSelectedProduct(product);
+    this.store.dispatch(ProductActions.setCurrentProduct({product}));
   }
 
 }

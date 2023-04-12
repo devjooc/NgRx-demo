@@ -1,5 +1,7 @@
-import {createAction, createFeatureSelector, createReducer, createSelector, on} from "@ngrx/store";
+import {createFeatureSelector, createReducer, createSelector, on} from "@ngrx/store";
 import {IProductState} from "./product-state";
+// use import as
+import * as ProductActions from './product-actions';
 
 // initial state
 const initialState: IProductState = {
@@ -29,10 +31,36 @@ export const getProducts = createSelector(
 
 export const productReducer = createReducer<IProductState>(
   initialState,
-  on(createAction('[Product] Toggle Product Code'), (state): IProductState => {
+  on(ProductActions.toggleProductCode, (state): IProductState => {
     return {
       ...state,
       showProductCode: !state.showProductCode
+    }
+  }),
+  // example of action with associated data
+  on(ProductActions.setCurrentProduct, (state, action): IProductState => {
+    return {
+      ...state,
+      currentProduct: action.product
+    }
+  }),
+  // other actions
+  on(ProductActions.initializeCurrentProduct, (state): IProductState => {
+    return {
+      ...state,
+      currentProduct: {
+        id: 0,
+        productName: '',
+        productCode: 'New',
+        description: '',
+        starRating: 0,
+      }
+    }
+  }),
+  on(ProductActions.clearCurrentProduct, (state): IProductState => {
+    return {
+      ...state,
+      currentProduct: null
     }
   })
 );

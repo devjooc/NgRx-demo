@@ -1,12 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import { Subscription } from 'rxjs';
+import {Subscription} from 'rxjs';
 
-import { Product } from '../product';
-import { ProductService } from '../product.service';
-import { GenericValidator } from '../../shared/generic-validator';
-import { NumberValidators } from '../../shared/number.validator';
+import {Product} from '../product';
+import {ProductService} from '../product.service';
+import {GenericValidator} from '../../shared/generic-validator';
+import {NumberValidators} from '../../shared/number.validator';
+/* NgRx */
+import * as ProductActions from '../state/product-actions';
+import {AppState} from "../state/product-state";
+import {Store} from "@ngrx/store";
+import {getCurrentProduct} from "../state/product-reducer";
 
 @Component({
   selector: 'pm-product-edit',
@@ -25,9 +30,9 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   private validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
 
-  constructor(private fb: FormBuilder, private productService: ProductService) {
+  constructor(private fb: FormBuilder, private productService: ProductService, private store: Store<AppState>) {
 
-    // Defines all of the validation messages for the form.
+    // Defines all the validation messages for the form.
     // These could instead be retrieved from a file or database.
     this.validationMessages = {
       productName: {
@@ -57,10 +62,14 @@ export class ProductEditComponent implements OnInit, OnDestroy {
       description: ''
     });
 
-    // Watch for changes to the currently selected product
-    this.sub = this.productService.selectedProductChanges$.subscribe(
+    // Watch for changes to the currently selected product (old implementation)
+    // this.sub = this.productService.selectedProductChanges$.subscribe(
+    //   currentProduct => this.displayProduct(currentProduct)
+    // );
+    // TODO unsubscribe
+    this.store.select(getCurrentProduct).subscribe(
       currentProduct => this.displayProduct(currentProduct)
-    );
+    )
 
     // Watch for value changes for validation
     this.productForm.valueChanges.subscribe(
@@ -69,7 +78,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    // this.sub.unsubscribe();
   }
 
   // Also validate on blur
@@ -113,32 +122,36 @@ export class ProductEditComponent implements OnInit, OnDestroy {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
         this.productService.deleteProduct(product.id).subscribe({
-          next: () => this.productService.changeSelectedProduct(null),
+          // next: () => this.productService.changeSelectedProduct(null), // old implementation
+          next: () => this.store.dispatch(ProductActions.clearCurrentProduct()),
           error: err => this.errorMessage = err
         });
       }
     } else {
       // No need to delete, it was never saved
-      this.productService.changeSelectedProduct(null);
+      // this.productService.changeSelectedProduct(null); // old implementation
+      this.store.dispatch(ProductActions.clearCurrentProduct());
     }
   }
 
   saveProduct(originalProduct: Product): void {
     if (this.productForm.valid) {
       if (this.productForm.dirty) {
-        // Copy over all of the original product properties
+        // Copy over all the original product properties
         // Then copy over the values from the form
         // This ensures values not on the form, such as the Id, are retained
-        const product = { ...originalProduct, ...this.productForm.value };
+        const product = {...originalProduct, ...this.productForm.value};
 
         if (product.id === 0) {
           this.productService.createProduct(product).subscribe({
-            next: p => this.productService.changeSelectedProduct(p),
+            // next: p => this.productService.changeSelectedProduct(p), // old implementation
+            next: p => this.store.dispatch(ProductActions.setCurrentProduct({product: p})),
             error: err => this.errorMessage = err
           });
         } else {
           this.productService.updateProduct(product).subscribe({
-            next: p => this.productService.changeSelectedProduct(p),
+            // next: p => this.productService.changeSelectedProduct(p), // old implementation
+            next: p => this.store.dispatch(ProductActions.setCurrentProduct({product: p})),
             error: err => this.errorMessage = err
           });
         }
