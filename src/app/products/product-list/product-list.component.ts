@@ -28,7 +28,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   // observables
   products$!: Observable<Product[]>;
-  selectedProduct$!: Observable<Product | null>;
+  selectedProduct$!: Observable<Product | null | undefined>;
   displayCode$!: Observable<boolean>;
   errorMessage$!: Observable<string>;
 
@@ -57,7 +57,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.store.dispatch(ProductActions.loadProducts());
     this.selectedProduct$ = this.store.select(getCurrentProduct);
     this.displayCode$ = this.store.select(getShowProductCode);
-
     this.errorMessage$ = this.store.select(getError);
 
     // subscribe to store using a selector (before using effects)
@@ -91,7 +90,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   productSelected(product: Product): void {
     // this.productService.changeSelectedProduct(product);
-    this.store.dispatch(ProductActions.setCurrentProduct({product}));
+    this.store.dispatch(ProductActions.setCurrentProduct({currentProductId: product.id}));
   }
 
 }

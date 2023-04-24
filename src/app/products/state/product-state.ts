@@ -10,7 +10,8 @@ export interface AppState extends App.AppState {
 
 export interface IProductState {
   showProductCode: boolean;
-  currentProduct: Product | null;
+  // currentProduct: Product | null;
+  currentProductId: number | null;
   products: Product[];
   error: string
 }

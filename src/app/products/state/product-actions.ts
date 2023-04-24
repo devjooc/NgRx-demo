@@ -7,7 +7,8 @@ export const toggleProductCode = createAction(
 
 export const setCurrentProduct = createAction(
   '[Product] Set current product',
-  props<{ product: Product }>() // to specify any associated data with the action => use props
+  props<{ currentProductId: number | null }>() // to specify any associated data with the action => use props
+  // props<{ product: Product }>() // to specify any associated data with the action => use props
 );
 
 export const clearCurrentProduct = createAction(
@@ -33,7 +34,21 @@ export const loadProductsSuccess = createAction(
 export const loadProductsFailure = createAction(
   '[Product] load products failure',
   props<{ error: string }>()
-)
+);
 
+/* define action for update product => 3 action needed */
+export const updateProduct = createAction(
+  '[Product] Update product',
+  props<{ product: Product }>()
+);
 
+export const updateProductSuccess = createAction(
+  '[Product] Update Product Success',
+  props<{ product: Product }>()
+);
+
+export const updateProductFailure = createAction(
+  '[Product] Update Product Failure',
+  props<{ error: string }>()
+);
 

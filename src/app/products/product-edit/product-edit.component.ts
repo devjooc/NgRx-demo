@@ -11,7 +11,7 @@ import {NumberValidators} from '../../shared/number.validator';
 import * as ProductActions from '../state/product-actions';
 import {AppState} from "../state/product-state";
 import {Store} from "@ngrx/store";
-import {getCurrentProduct} from "../state/product-reducer";
+import {getCurrentProduct, getCurrentProductId} from "../state/product-reducer";
 import {tap} from "rxjs/operators";
 
 @Component({
@@ -30,7 +30,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   displayMessage: { [key: string]: string } = {};
   private readonly validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
-  product$!: Observable<Product | null>;
+  product$!: Observable<Product | null | undefined>;
 
   constructor(private fb: FormBuilder, private productService: ProductService, private store: Store<AppState>) {
 
@@ -97,10 +97,10 @@ export class ProductEditComponent implements OnInit, OnDestroy {
     this.displayMessage = this.genericValidator.processMessages(this.productForm);
   }
 
-  displayProduct(product: Product | null): void {
+  displayProduct(product: Product | null | undefined): void {
     // Set the local product property
     // this.product = product;
-
+    console.log('display product');
     if (product) {
       // Reset the form back to pristine
       this.productForm.reset();
@@ -138,9 +138,10 @@ export class ProductEditComponent implements OnInit, OnDestroy {
         });
       }
     } else {
+      this.store.dispatch(ProductActions.clearCurrentProduct());
+
       // No need to delete, it was never saved
       // this.productService.changeSelectedProduct(null); // old implementation
-      this.store.dispatch(ProductActions.clearCurrentProduct());
     }
   }
 
@@ -155,15 +156,19 @@ export class ProductEditComponent implements OnInit, OnDestroy {
         if (product.id === 0) {
           this.productService.createProduct(product).subscribe({
             // next: p => this.productService.changeSelectedProduct(p), // old implementation
-            next: p => this.store.dispatch(ProductActions.setCurrentProduct({product: p})),
+            next: p => this.store.dispatch(ProductActions.setCurrentProduct({currentProductId: p.id})),
             error: err => this.errorMessage = err
           });
         } else {
-          this.productService.updateProduct(product).subscribe({
-            // next: p => this.productService.changeSelectedProduct(p), // old implementation
-            next: p => this.store.dispatch(ProductActions.setCurrentProduct({product: p})),
-            error: err => this.errorMessage = err
-          });
+          console.log('3oooooooooooooooo');
+          this.store.dispatch(ProductActions.updateProduct({product}));
+
+          // old implementation (no ngrx actions/effects)
+          // this.productService.updateProduct(product).subscribe({
+          //   next: p => this.productService.changeSelectedProduct(p), // old implementation
+          // next: p => this.store.dispatch(ProductActions.setCurrentProduct({currentProductId: p.id})),
+          // error: err => this.errorMessage = err
+          // });
         }
       }
     }

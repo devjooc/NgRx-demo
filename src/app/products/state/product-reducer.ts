@@ -6,7 +6,7 @@ import * as ProductActions from './product-actions';
 // initial state
 const initialState: IProductState = {
   showProductCode: true,
-  currentProduct: null,
+  currentProductId: null,
   products: [],
   error: ""
 }
@@ -21,10 +21,28 @@ export const getShowProductCode = createSelector(
   state => state.showProductCode
 );
 // 3) create selector for other properties
+export const getCurrentProductId = createSelector(
+  getProductFeatureState,
+  state => state.currentProductId
+);
 export const getCurrentProduct = createSelector(
   getProductFeatureState,
-  state => state.currentProduct
-);
+  getCurrentProductId,
+  (state, currentProductId) => {
+    if (currentProductId === 0) {
+      return {
+        id: 0,
+        productName: '',
+        productCode: 'New',
+        description: '',
+        starRating: 0
+      }
+    } else {
+      return currentProductId ? state.products.find(p => p.id === currentProductId) : null;
+    }
+  }
+)
+
 export const getProducts = createSelector(
   getProductFeatureState,
   state => state.products
@@ -47,26 +65,20 @@ export const productReducer = createReducer<IProductState>(
   on(ProductActions.setCurrentProduct, (state, action): IProductState => {
     return {
       ...state,
-      currentProduct: action.product
+      currentProductId: action.currentProductId
     }
   }),
   // other actions
   on(ProductActions.initializeCurrentProduct, (state): IProductState => {
     return {
       ...state,
-      currentProduct: {
-        id: 0,
-        productName: '',
-        productCode: 'New',
-        description: '',
-        starRating: 0,
-      }
+      currentProductId: 0
     }
   }),
   on(ProductActions.clearCurrentProduct, (state): IProductState => {
     return {
       ...state,
-      currentProduct: null
+      currentProductId: null
     }
   }),
   // complex action that get data from server
@@ -81,6 +93,23 @@ export const productReducer = createReducer<IProductState>(
     return {
       ...state,
       products: [],
+      error: action.error
+    }
+  }),
+  // actions for update product
+  on(ProductActions.updateProductSuccess, (state, action): IProductState => {
+    // always be sure to create a new array & not mutate the existing one
+    const updatedProducts = state.products.map(item => action.product.id === item.id ? action.product : item);
+    return {
+      ...state,
+      products: updatedProducts,
+      currentProductId: action.product.id,
+      error: ''
+    }
+  }),
+  on(ProductActions.updateProductFailure, (state, action): IProductState => {
+    return {
+      ...state,
       error: action.error
     }
   })
