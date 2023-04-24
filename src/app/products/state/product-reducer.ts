@@ -2,6 +2,7 @@ import {createFeatureSelector, createReducer, createSelector, on} from "@ngrx/st
 import {IProductState} from "./product-state";
 // use import as
 import * as ProductActions from './product-actions';
+import {Product} from "../product";
 
 // initial state
 const initialState: IProductState = {
@@ -112,5 +113,40 @@ export const productReducer = createReducer<IProductState>(
       ...state,
       error: action.error
     }
-  })
+  }),
+  // actions for create new product
+  on(ProductActions.createProductSuccess, (state, action): IProductState => {
+    // always be sure to create a new array & not mutate the existing one
+    // add the new product to the store
+    const updatedProducts = [...state.products, action.product]
+    return {
+      ...state,
+      products: updatedProducts,
+      currentProductId: action.product.id,
+      error: ''
+    }
+  }),
+  on(ProductActions.createProductFailure, (state, action): IProductState => {
+    return {
+      ...state,
+      error: action.error
+    }
+  }),
+  // actions for delete product
+  on(ProductActions.deleteProductSuccess, (state, action): IProductState => {
+    // remove deleted product from store
+    const updateProducts = state.products.filter(item => item.id !== action.deleteProductId);
+    return {
+      ...state,
+      products: updateProducts,
+      currentProductId: 0,
+      error: ''
+    }
+  }),
+  on(ProductActions.deleteProductFailure, (state, action): IProductState => {
+    return {
+      ...state,
+      error: action.error
+    }
+  }),
 );

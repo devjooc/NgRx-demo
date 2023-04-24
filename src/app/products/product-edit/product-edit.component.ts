@@ -98,9 +98,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   }
 
   displayProduct(product: Product | null | undefined): void {
-    // Set the local product property
-    // this.product = product;
-    console.log('display product');
+
     if (product) {
       // Reset the form back to pristine
       this.productForm.reset();
@@ -131,11 +129,14 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   deleteProduct(product: Product | null): void {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
-        this.productService.deleteProduct(product.id).subscribe({
-          // next: () => this.productService.changeSelectedProduct(null), // old implementation
-          next: () => this.store.dispatch(ProductActions.clearCurrentProduct()),
-          error: err => this.errorMessage = err
-        });
+        this.store.dispatch(ProductActions.deleteProduct({productId: product.id}));
+
+        // old implementation (no ngrx effects)
+        // this.productService.deleteProduct(product.id).subscribe({
+        //   // next: () => this.productService.changeSelectedProduct(null), // old implementation
+        //   next: () => this.store.dispatch(ProductActions.clearCurrentProduct()),
+        //   error: err => this.errorMessage = err
+        // });
       }
     } else {
       this.store.dispatch(ProductActions.clearCurrentProduct());
@@ -154,15 +155,15 @@ export class ProductEditComponent implements OnInit, OnDestroy {
         const product = {...originalProduct, ...this.productForm.value};
 
         if (product.id === 0) {
-          this.productService.createProduct(product).subscribe({
-            // next: p => this.productService.changeSelectedProduct(p), // old implementation
-            next: p => this.store.dispatch(ProductActions.setCurrentProduct({currentProductId: p.id})),
-            error: err => this.errorMessage = err
-          });
+          this.store.dispatch(ProductActions.createProduct({product}));
+          // old implementation (no ngrx actions/effects)
+          // this.productService.createProduct(product).subscribe({
+          //   // next: p => this.productService.changeSelectedProduct(p), // old implementation
+          //   next: p => this.store.dispatch(ProductActions.setCurrentProduct({currentProductId: p.id})),
+          //   error: err => this.errorMessage = err
+          // });
         } else {
-          console.log('3oooooooooooooooo');
           this.store.dispatch(ProductActions.updateProduct({product}));
-
           // old implementation (no ngrx actions/effects)
           // this.productService.updateProduct(product).subscribe({
           //   next: p => this.productService.changeSelectedProduct(p), // old implementation
