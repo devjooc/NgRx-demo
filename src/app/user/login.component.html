@@ -19,12 +19,12 @@
               <input class="form-control"
                      [ngClass]="{'is-invalid': (userNameVar.touched || userNameVar.dirty) && !userNameVar.valid }"
                      id="userNameId"
-                     [type]="maskUserName ? 'password' : 'text'"
+                     [type]="(maskUserName$ | async) ? 'password' : 'text'"
                      placeholder="User Name (required)"
                      required
                      ngModel
                      name="userName"
-                     #userNameVar="ngModel" />
+                     #userNameVar="ngModel"/>
               <div class="invalid-feedback"
                    *ngIf="(userNameVar.touched || userNameVar.dirty) && passwordVar.hasError('required')">
                 User name is required.
@@ -44,7 +44,7 @@
                      required
                      ngModel
                      name="password"
-                     #passwordVar="ngModel" />
+                     #passwordVar="ngModel"/>
               <div class="invalid-feedback"
                    *ngIf="(passwordVar.touched || passwordVar.dirty) && passwordVar.hasError('required')">
                 Password is required.
@@ -81,7 +81,7 @@
             <input class="form-check-input"
                    type="checkbox"
                    (change)="checkChanged()"
-                   [checked]="maskUserName">
+                   [checked]="maskUserName$ | async">
             Mask user name
           </label>
         </div>
