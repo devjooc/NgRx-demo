@@ -13,6 +13,7 @@ import {ShellComponent} from "./home/shell.component";
 import {HttpClientInMemoryWebApiModule} from "angular-in-memory-web-api";
 import {StoreModule} from '@ngrx/store';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
+import { EffectsModule } from '@ngrx/effects';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
     UserModule,
     AppRoutingModule,
     StoreModule.forRoot({}, {}),
-    StoreDevtoolsModule.instrument({name: 'Demo App', maxAge: 25, logOnly: !isDevMode()})
+    StoreDevtoolsModule.instrument({name: 'Demo App', maxAge: 25, logOnly: !isDevMode()}),
+    EffectsModule.forRoot([])
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -12,4 +12,5 @@ export interface IProductState {
   showProductCode: boolean;
   currentProduct: Product | null;
   products: Product[];
+  error: string
 }

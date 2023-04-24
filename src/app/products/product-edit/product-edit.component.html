@@ -1,5 +1,5 @@
 <div class="card"
-     *ngIf="product">
+     *ngIf="product$ | async">
   <div class="card-header">
     {{pageTitle}}
   </div>
@@ -19,7 +19,7 @@
                    type="text"
                    placeholder="Name (required)"
                    formControlName="productName"
-                   (blur)="blur()" />
+                   (blur)="blur()"/>
             <span class="invalid-feedback"
                   *ngIf="displayMessage['productName']">
               {{displayMessage['productName']}}
@@ -38,7 +38,7 @@
                    type="text"
                    placeholder="Code (required)"
                    formControlName="productCode"
-                   (blur)="blur()" />
+                   (blur)="blur()"/>
             <span class="invalid-feedback"
                   *ngIf="displayMessage['productCode']">
               {{displayMessage['productCode']}}
@@ -56,7 +56,7 @@
                    id="starRatingId"
                    type="text"
                    placeholder="Rating"
-                   formControlName="starRating" />
+                   formControlName="starRating"/>
             <span class="invalid-feedback"
                   *ngIf="displayMessage['starRating']">
               {{displayMessage['starRating']}}

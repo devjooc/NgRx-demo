@@ -1,7 +1,7 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import {Subscription} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 import {Product} from '../product';
 import {ProductService} from '../product.service';
@@ -12,6 +12,7 @@ import * as ProductActions from '../state/product-actions';
 import {AppState} from "../state/product-state";
 import {Store} from "@ngrx/store";
 import {getCurrentProduct} from "../state/product-reducer";
+import {tap} from "rxjs/operators";
 
 @Component({
   selector: 'pm-product-edit',
@@ -27,8 +28,9 @@ export class ProductEditComponent implements OnInit, OnDestroy {
 
   // Use with the generic validation message class
   displayMessage: { [key: string]: string } = {};
-  private validationMessages: { [key: string]: { [key: string]: string } };
+  private readonly validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
+  product$!: Observable<Product | null>;
 
   constructor(private fb: FormBuilder, private productService: ProductService, private store: Store<AppState>) {
 
@@ -62,13 +64,21 @@ export class ProductEditComponent implements OnInit, OnDestroy {
       description: ''
     });
 
-    // Watch for changes to the currently selected product (old implementation)
+    // Watch for changes to the currently selected product
+
+    // (old implementation)
     // this.sub = this.productService.selectedProductChanges$.subscribe(
     //   currentProduct => this.displayProduct(currentProduct)
     // );
-    // TODO unsubscribe
-    this.store.select(getCurrentProduct).subscribe(
-      currentProduct => this.displayProduct(currentProduct)
+
+    // using ngrx but before effects
+    // this.store.select(getCurrentProduct).subscribe(
+    //   currentProduct => this.displayProduct(currentProduct)
+    // )
+
+    // with effects
+    this.product$ = this.store.select(getCurrentProduct).pipe(
+      tap(currentProduct => this.displayProduct(currentProduct))
     )
 
     // Watch for value changes for validation
@@ -89,7 +99,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
 
   displayProduct(product: Product | null): void {
     // Set the local product property
-    this.product = product;
+    // this.product = product;
 
     if (product) {
       // Reset the form back to pristine
@@ -112,13 +122,13 @@ export class ProductEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  cancelEdit(product: Product): void {
+  cancelEdit(product: Product | null): void {
     // Redisplay the currently selected product
     // replacing any edits made
     this.displayProduct(product);
   }
 
-  deleteProduct(product: Product): void {
+  deleteProduct(product: Product | null): void {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
         this.productService.deleteProduct(product.id).subscribe({
@@ -134,7 +144,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  saveProduct(originalProduct: Product): void {
+  saveProduct(originalProduct: Product | null): void {
     if (this.productForm.valid) {
       if (this.productForm.dirty) {
         // Copy over all the original product properties

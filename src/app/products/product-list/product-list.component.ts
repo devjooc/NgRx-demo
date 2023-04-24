@@ -1,12 +1,12 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 
-import {Subscription} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 import {Product} from '../product';
 import {ProductService} from '../product.service';
 import {Store} from "@ngrx/store";
 import {AppState} from "../state/product-state"; // import AppState from Products folder
-import {getCurrentProduct, getShowProductCode} from "../state/product-reducer";
+import {getCurrentProduct, getError, getProducts, getShowProductCode} from "../state/product-reducer";
 // use import as for actions
 import * as ProductActions from '../state/product-actions';
 
@@ -18,7 +18,6 @@ import * as ProductActions from '../state/product-actions';
 export class ProductListComponent implements OnInit, OnDestroy {
   pageTitle: string = 'Products';
   errorMessage!: string;
-
   displayCode!: boolean;
 
   products!: Product[];
@@ -26,6 +25,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Used to highlight the selected product in the list
   selectedProduct!: Product | null;
   sub!: Subscription;
+
+  // observables
+  products$!: Observable<Product[]>;
+  selectedProduct$!: Observable<Product | null>;
+  displayCode$!: Observable<boolean>;
+  errorMessage$!: Observable<string>;
 
   constructor(private productService: ProductService, private store: Store<AppState>) {
   }
@@ -35,20 +40,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
     // this.sub = this.productService.selectedProductChanges$.subscribe(
     //   currentProduct => this.selectedProduct = currentProduct
     // );
-    // TODO: unsubscribe
-    this.store.select(getCurrentProduct).subscribe(
-      currentProduct => this.selectedProduct = currentProduct
-    );
 
-    this.productService.getProducts().subscribe({
-      next: (products: Product[]) => this.products = products,
-      error: err => this.errorMessage = err
-    });
+    // before effects
+    // this.store.select(getCurrentProduct).subscribe(
+    //   currentProduct => this.selectedProduct = currentProduct
+    // );
 
-    // subscribe to store using a selector
-    this.store.select(getShowProductCode).subscribe(
-      (showProductCode: boolean) => this.displayCode = showProductCode
-    )
+    // old implementation before effects
+    // this.productService.getProducts().subscribe({
+    //   next: (products: Product[]) => this.products = products,
+    //   error: err => this.errorMessage = err
+    // });
+
+    // with effects
+    this.products$ = this.store.select(getProducts);
+    this.store.dispatch(ProductActions.loadProducts());
+    this.selectedProduct$ = this.store.select(getCurrentProduct);
+    this.displayCode$ = this.store.select(getShowProductCode);
+
+    this.errorMessage$ = this.store.select(getError);
+
+    // subscribe to store using a selector (before using effects)
+    // this.store.select(getShowProductCode).subscribe(
+    //   (showProductCode: boolean) => this.displayCode = showProductCode
+    // )
 
     // subscribe to ngRx store (select slice 'products') to receive state changes (no selector here)
     // this.store.select('products').subscribe(

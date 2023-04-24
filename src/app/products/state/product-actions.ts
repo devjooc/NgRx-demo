@@ -22,7 +22,7 @@ export const initializeCurrentProduct = createAction(
 * we define 3 actions for complex operation, one to retrieve data, one for success and one for failure
 *  */
 export const loadProducts = createAction(
-  '[Product]'
+  '[Product] load'
 );
 
 export const loadProductsSuccess = createAction(

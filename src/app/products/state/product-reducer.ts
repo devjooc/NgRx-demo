@@ -7,7 +7,8 @@ import * as ProductActions from './product-actions';
 const initialState: IProductState = {
   showProductCode: true,
   currentProduct: null,
-  products: []
+  products: [],
+  error: ""
 }
 
 /* state selectors example */
@@ -28,6 +29,11 @@ export const getProducts = createSelector(
   getProductFeatureState,
   state => state.products
 );
+
+export const getError = createSelector(
+  getProductFeatureState,
+  state => state.error
+)
 
 export const productReducer = createReducer<IProductState>(
   initialState,
@@ -61,6 +67,21 @@ export const productReducer = createReducer<IProductState>(
     return {
       ...state,
       currentProduct: null
+    }
+  }),
+  // complex action that get data from server
+  on(ProductActions.loadProductsSuccess, (state, action): IProductState => {
+    return {
+      ...state,
+      products: action.products,
+      error: ''
+    }
+  }),
+  on(ProductActions.loadProductsFailure, (state, action): IProductState => {
+    return {
+      ...state,
+      products: [],
+      error: action.error
     }
   })
 );
