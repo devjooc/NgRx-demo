@@ -6,9 +6,9 @@ import {Product} from '../product';
 import {ProductService} from '../product.service';
 import {Store} from "@ngrx/store";
 import {AppState} from "../state/product-state"; // import AppState from Products folder
-import {getCurrentProduct, getError, getProducts, getShowProductCode} from "../state/product-reducer";
-// use import as for actions
-import * as ProductActions from '../state/product-actions';
+import {getCurrentProduct, getError, getProducts, getShowProductCode} from "../state";
+// import product action using its barrel file
+import {ProductPageActions} from '../state/actions';
 
 @Component({
   selector: 'pm-product-list',
@@ -54,7 +54,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     // with effects
     this.products$ = this.store.select(getProducts);
-    this.store.dispatch(ProductActions.loadProducts());
+    this.store.dispatch(ProductPageActions.loadProducts());
     this.selectedProduct$ = this.store.select(getCurrentProduct);
     this.displayCode$ = this.store.select(getShowProductCode);
     this.errorMessage$ = this.store.select(getError);
@@ -75,7 +75,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   checkChanged(): void {
-    this.store.dispatch(ProductActions.toggleProductCode());
+    this.store.dispatch(ProductPageActions.toggleProductCode());
 
     // example of dispatching action without typed action
     // this.store.dispatch({
@@ -85,12 +85,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   newProduct(): void {
     // this.productService.changeSelectedProduct(this.productService.newProduct());
-    this.store.dispatch(ProductActions.initializeCurrentProduct());
+    this.store.dispatch(ProductPageActions.initializeCurrentProduct());
   }
 
   productSelected(product: Product): void {
     // this.productService.changeSelectedProduct(product);
-    this.store.dispatch(ProductActions.setCurrentProduct({currentProductId: product.id}));
+    this.store.dispatch(ProductPageActions.setCurrentProduct({currentProductId: product.id}));
   }
 
 }

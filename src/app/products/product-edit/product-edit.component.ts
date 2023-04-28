@@ -8,11 +8,12 @@ import {ProductService} from '../product.service';
 import {GenericValidator} from '../../shared/generic-validator';
 import {NumberValidators} from '../../shared/number.validator';
 /* NgRx */
-import * as ProductActions from '../state/product-actions';
 import {AppState} from "../state/product-state";
 import {Store} from "@ngrx/store";
-import {getCurrentProduct, getCurrentProductId} from "../state/product-reducer";
+import {getCurrentProduct} from "../state";
 import {tap} from "rxjs/operators";
+// import product action using its barrel file
+import {ProductPageActions} from '../state/actions';
 
 @Component({
   selector: 'pm-product-edit',
@@ -129,7 +130,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   deleteProduct(product: Product | null): void {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
-        this.store.dispatch(ProductActions.deleteProduct({productId: product.id}));
+        this.store.dispatch(ProductPageActions.deleteProduct({productId: product.id}));
 
         // old implementation (no ngrx effects)
         // this.productService.deleteProduct(product.id).subscribe({
@@ -139,7 +140,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
         // });
       }
     } else {
-      this.store.dispatch(ProductActions.clearCurrentProduct());
+      this.store.dispatch(ProductPageActions.clearCurrentProduct());
 
       // No need to delete, it was never saved
       // this.productService.changeSelectedProduct(null); // old implementation
@@ -155,7 +156,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
         const product = {...originalProduct, ...this.productForm.value};
 
         if (product.id === 0) {
-          this.store.dispatch(ProductActions.createProduct({product}));
+          this.store.dispatch(ProductPageActions.createProduct({product}));
           // old implementation (no ngrx actions/effects)
           // this.productService.createProduct(product).subscribe({
           //   // next: p => this.productService.changeSelectedProduct(p), // old implementation
@@ -163,7 +164,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
           //   error: err => this.errorMessage = err
           // });
         } else {
-          this.store.dispatch(ProductActions.updateProduct({product}));
+          this.store.dispatch(ProductPageActions.updateProduct({product}));
           // old implementation (no ngrx actions/effects)
           // this.productService.updateProduct(product).subscribe({
           //   next: p => this.productService.changeSelectedProduct(p), // old implementation
