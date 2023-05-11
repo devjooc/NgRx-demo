@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {AuthService} from './auth.service';
 import {Store} from "@ngrx/store";
 import {AppState} from "../state/app-state";
-import {getMaskUserName} from "./state/user-reducer";
+import {getMaskUserName} from "./state";
 // user actions
 import * as UserActions from './state/user-actions';
 import {Observable} from "rxjs";
